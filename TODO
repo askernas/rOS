@@ -1,0 +1,13 @@
+Rewrite entire receiver/transmitter to not use any deleay(calls). Especially with the TUSCEN code.
+Rewrite the Audio FC to use Sparkfun mp3 trigger instead of existing legacy board.
+Rewrite audio core to use multitracks from mp3 wav or mp3 trigger.
+Refactor code.
+
+Controller:
+Controller should be a dummy. Non intelligent. It will not store information only send info and display info. 
+All info displayed should be sent by the receiver.
+
+Receiver:
+Since the receiver is responsible for driving the droid, it should be the brains of it all and have all info on it.
+All other are only peripherials.
+Receiver should only read the controller and drive the droid, and pass through all other information.
