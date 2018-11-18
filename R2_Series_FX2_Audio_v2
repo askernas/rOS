@@ -1,0 +1,174 @@
+/*
+RSeries Receiver I2C Audio FX2 Module Slave for rMP3 
+V008  28-Mar-2012
+GNU GPL v3
+
+  
+To use this sketch, you need the following
+
+rMP3 Rogue Robotics MP3 & SD Support
+SD Card with SOUNDS 
+Arduino IDE 1.0 Compatible with edited RogueMP3 & RogueSD libraries 
+
+ 
+*/
+'
+#include "Arduino.h"
+#include <Wire.h>
+
+#include <SoftwareSerial.h>   // this is to fix Arduino 0022 Core Stream
+#include <RogueSD.h>         // Rogue Robotics SD File Support, which is on the rMP3
+#include <RogueMP3.h>        // Rogue Robotics rMP3
+
+#undef round
+int x;
+
+long loopCount = 0;
+long twitchTime = 0;
+
+
+
+//  rMP3 Serial
+SoftwareSerial rmp3_serial(6, 7);
+RogueMP3 rmp3(rmp3_serial);
+RogueSD filecommands(rmp3_serial);
+
+// variables for Sounds on SD
+int numberOfSounds;
+int lastSound;
+char path[96];
+char soundFile[96];
+int soundNum;
+char soundNum_str[3]; // supports up to 99 files in SOUND/SSSSS/ folders
+int randomSoundPlay; // randomness of SoundPlay... not what you think
+
+const char *directory = "/FX2";
+
+//Setup Sound Folder Strings
+const char SERVO[25] = "/FX2/SERVO/SERVO"; 
+int SERVO_FN = 24; // Number of files in folder
+
+const char DSTOP[25] = "/FX2/DSTOP/DSTOP"; 
+int DSTOP_FN = 4; // Number of files in folder
+
+
+void setup() {
+// Setup rMP3 Serial
+//  Serial.begin(9600); // DEBUG CODE
+  rmp3_serial.begin(9600);
+  rmp3.sync();
+  rmp3.stop();
+  rmp3.setvolume(0);
+
+  
+// Setup rSD access
+  filecommands.sync();
+ 
+// play a initializing start sound
+  rmp3.playfile("/FX2/DOME2.mp3");
+
+ delay(1000);
+
+
+// mix up our random number generator
+randomSeed(analogRead(0));
+
+twitchTime = 2000;   // Initial time 
+
+  
+  Wire.begin(5);                // join i2c bus with address #5
+  Wire.onReceive(receiveEvent); // register event
+
+
+}
+
+/*
+                     "Alarm Sequenc",         // Item 1
+                     "Leia HP Mesg",          // Item 2
+                     "Sys Failure",           // Item 3
+                     "Happy SFX",             // Item 4
+                     "Rnd Whistle",           // Item 5
+                     "Razzberry",             // Item 6
+                     "Angry SFX",             // Item 7
+                     "Fire Extngshr",         // Item 8 DisplayGroup = 2
+                     "Dome Wave",             // Item 9 
+                     "Wolf Whistle",          // Item 10
+                     "Dance Cantina",         // Item 11
+                     "VADER!",                // Don't use 3 exclamation symbols ! with a MEGA 2560
+                     "C3PO",                  // Item 13   
+                     "Yoda",                  // Item 14 
+                     "Luke",                  // Item 15 DisplayGroup = 3 
+                     "Leia",                  // Item 16 
+                     "Han Solo",              // Item 17 -- Requires 104 workaround
+                     "Obi Wan",               // Item 18
+                     "Chewbacca",             // Item 19 -- requires 105 workaround
+                     "Jawas",                 // Item 20
+                     "Anakin",                // Item 21
+                     "Jabba's Place",         // Item 22 DisplayGroup = 4
+                     "Ahsoka",
+                     "Launch Saber",
+                     "Hello of RLD",
+                     "Item 26",
+                     "Item 27",
+                     "Item 28",
+                     "Item 29",
+                     "Item 30", //Item 30
+*/
+
+void loop()
+{
+//  loopCount++;
+  if (x == 200) {rmp3.playfile("/FX2/DOME4.mp3"); x=0; loopCount = 0;}     // DOME Rotation
+//  if (x == 201) {rmp3.playfile("/FX2/DOME2.mp3"); delay(500); rmp3.playfile("/FX2/DOME4.mp3"); x=0; loopCount = 0;}// DOME // DOME Rotation LEFT Start
+//  if (x == 202) {rmp3.playfile("/FX2/DOME6.mp3"); x=0;loopCount = 0;}      // DOME Rotation End
+  if (x == 202) {playDOMESTOP(); x=0;loopCount = 0;}      // DOME Rotation End
+  if (x == 203) {rmp3.playfile("/FX2/CPUARM1.mp3"); x=0;loopCount = 0;}    // Activation CPU ARM
+  if (x == 204) {rmp3.playfile("/FX2/HOLOPROJ1.mp3"); x=0; loopCount = 0;} // HOLO PROJECT Start & Continue
+  if (x == 205) {rmp3.playfile("/FX2/HOLOPROJ2.mp3"); x=0; loopCount = 0;} // HOLO PROJECT Start & Continue
+//  if (x == 206) {rmp3.playfile("/FX2/DRIVE1.mp3"); delay(500); x=0; loopCount = 0;}// DOME // DOME Rotation LEFT Start
+//  if (x == 207) {rmp3.playfile("/FX2/DRIVE2.mp3"); x=0;loopCount = 0;}    // Activation CPU ARM
+  
+
+//  
+//  Serial.println(x);         // print the integer DEBUG CODE
+//
+/*
+  if (loopCount > twitchTime)
+  {
+     playPROC();                            // call playPROC routine
+     loopCount = 0;                         // reset loopCount
+     twitchTime = random (45,90) * 1000;    // set the next twitchtime
+  }
+*/
+  delay(5);
+}
+
+// receiveEvent function executes whenever data is received from master
+// this function is registered as an event, see setup()
+
+void receiveEvent(int howMany) {
+    x = Wire.read();    // receive byte as an integer
+//    Serial.println(x);         // print the integer - DEBUG CODE
+}
+
+void playSERVO()                        // Randomly play Servo sound
+{
+       soundNum = random (1, SERVO_FN);   // generate a random # from 1 to the number of files declared in that folder
+       strcpy (path, SERVO);              // copy SERVO char variable, to path
+       itoa(soundNum, soundNum_str, 10); // convert the random number integer to string and store it in sound_str
+       strcat (path, soundNum_str);      // add sound_str to path
+       strcat (path, ".mp3");            // add .mp3 to path
+       //Serial.println(path);           // used to debug
+       rmp3.playfile(path);
+}
+
+void playDOMESTOP()
+{
+		soundNum = random (1, DSTOP_FN);  // generate a random # from 1 to the number of files declared in that folder
+		strcpy (path, DSTOP);             // copy WHIST char variable, to path
+		itoa(soundNum, soundNum_str, 10); // convert the random number integer to string and store it in sound_str
+		strcat (path, soundNum_str);      // add sound_str to path
+		strcat (path, ".mp3");            // add .mp3 to path
+		//Serial.println(path);            // used to debug
+		rmp3.playfile(path);
+}
