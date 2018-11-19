@@ -1,34 +1,36 @@
-Rewrite entire receiver/transmitter to not use any deleay(calls). Especially with the TUSCEN code.
-Rewrite the Audio FC to use Sparkfun mp3 trigger instead of existing legacy board.
-Rewrite audio core to use multitracks from mp3 wav or mp3 trigger.
-Refactor code.
+#TO DO
+
+####Rewrite entire receiver/transmitter to not use any deleay(calls). Especially with the TUSCEN code.
+####Rewrite the Audio FC to use Sparkfun mp3 trigger instead of existing legacy board.
+####Rewrite audio core to use multitracks from mp3 wav or mp3 trigger.
+####Refactor code.
 <br><br>
-Controller:
+##Controller:
 Controller should be a dummy. Non intelligent. It will not store information only send info and display info. 
 All info displayed should be sent by the receiver.
 <br><br>
-Receiver:
+##Receiver:
 Since the receiver is responsible for driving the droid, it should be the brains of it all and have all info on it.
 All other are only peripherials.
 Receiver should only read the controller and drive the droid, and pass through all other information.
 <br><br>
-Stuff to implement:
+##Stuff to implement:
 Support for various sensors. Proximity sensor, conductive sensors to provoke R2 response when interacted with.
 Add "mood matrix". Switchable on/off
 Add "display mode". Switchable on/off
 Add "parade mode". Switchable on/off
 <br><br>
-Mood Matrix:
+##Mood Matrix:
 R2 is a feisty character. When interacted with, he is happy, and chirps happy sounds.
 I have sorted various sounds in different categories within the type. For "whistle" sounds, there are happy whistles and
 sad and angry whistles. Depending on R2's mood, he will get cranky and irritated if no one interacts with him, and more
 frequent burst out annoyed sounds. When interacted with, he will hum and be more happy and smooth movements. Will not affect
 movement in any way. 
 <br><br>
-Display Mode:
+##Display Mode:
 R2 will stay still, but casually move his head around, look at things hum and sound to himself. Possibly casually open hatches.
 For display in the stand. May or may not include "jukebox mode" where he plays music...
 <br><br>
-Parade Mode:
+##Parade Mode:
 Disable most things. keeps his head straight on, turns head before turning body when driving. All focus on driving and 
 playing music.
